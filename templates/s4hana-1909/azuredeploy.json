@@ -135,7 +135,8 @@
 			"type": "string",
 			"metadata": {
 				"description": "Resource group of the VNet"
-			}
+			},
+			"defaultValue": "[resourceGroup().name]"
 		},
 		"subnet_name": {
 			"type": "string",
