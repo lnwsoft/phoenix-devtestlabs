@@ -2,13 +2,6 @@
 	"$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
 	"contentVersion": "1.0.0.0",
 	"parameters": {
-		"location": {
-			"type": "String",
-			"metadata": {
-				"description": "Azure Region for deployment"
-			}
-		},
-
 		"netweaver_sid": {
 			"defaultValue": "A01",
 			"type": "String",
@@ -108,49 +101,6 @@
 				"description": "Master password for the OS and database users"
 			}
 		},
-
-		"virtual_network_name": {
-			"type": "string",
-			"metadata": {
-				"description": "New or Existing VNet Name"
-			}
-		},
-		"virtual_network_new_or_existing": {
-			"type": "string",
-			"metadata": {
-				"description": "Boolean indicating whether the VNet is new or existing"
-			},
-			"allowedValues": [
-				"new",
-				"existing"
-			]
-		},
-		"virtual_network_address_prefix": {
-			"type": "string",
-			"metadata": {
-				"description": "VNet address prefix"
-			}
-		},
-		"virtual_network_resource_group": {
-			"type": "string",
-			"metadata": {
-				"description": "Resource group of the VNet"
-			},
-			"defaultValue": "[resourceGroup().name]"
-		},
-		"subnet_name": {
-			"type": "string",
-			"metadata": {
-				"description": "New or Existing subnet Name"
-			}
-		},
-		"subnet_address_prefix": {
-			"type": "string",
-			"metadata": {
-				"description": "Subnet address prefix"
-			}
-		},
-
 		"repo_storageacc_name": {
 			"type": "string"
 		},
@@ -163,12 +113,7 @@
 		}
 	},
 	"variables": {
-
-		"vnet_id": {
-			"new": "[resourceId('Microsoft.Network/virtualNetworks',parameters('virtual_network_name'))]",
-			"existing": "[resourceId(parameters('virtual_network_resource_group'),'Microsoft.Network/virtualNetworks',parameters('virtual_network_name'))]"
-		},
-		"subnet_id": "[concat(variables('vnet_id')[parameters('virtual_network_new_or_existing')],'/subnets/',parameters('subnet_name'))]",
+		"location": "[resourceGroup().location]",
 
 		"hana_nic_name": "[concat(parameters('hana_vm_name'),'-nic')]",
 		"hana_osdisk_name": "[concat(parameters('hana_vm_name'), '-os')]",
@@ -260,40 +205,17 @@
 			}
 		},
 		{
-			"condition": "[equals(parameters('virtual_network_new_or_existing'),'new')]",
-			"type": "Microsoft.Network/virtualNetworks",
-			"apiVersion": "2017-09-01",
-			"name": "[parameters('virtual_network_name')]",
-			"location": "[parameters('location')]",
-			"properties": {
-				"addressSpace": {
-					"addressPrefixes": [
-						"[parameters('virtual_network_address_prefix')]"
-					]
-				},
-				"subnets": [{
-					"name": "[parameters('subnet_name')]",
-					"properties": {
-						"addressPrefix": "[parameters('subnet_address_prefix')]"
-					}
-				}]
-			}
-		},
-		{
 			"type": "Microsoft.Network/networkInterfaces",
 			"apiVersion": "2019-09-01",
 			"name": "[variables('netweaver_nic_name')]",
-			"location": "[parameters('location')]",
-			"dependsOn": [
-				"[resourceId('Microsoft.Network/virtualNetworks/', parameters('virtual_network_name'))]"
-			],
+			"location": "[variables('location')]",
 			"properties": {
 				"ipConfigurations": [{
 					"name": "ipconfig1",
 					"properties": {
 						"privateIPAllocationMethod": "Dynamic",
 						"subnet": {
-							"id": "[variables('subnet_id')]"
+							"id": "$(LabSubnetId)"
 						},
 						"primary": true,
 						"privateIPAddressVersion": "IPv4"
@@ -307,7 +229,7 @@
 			"type": "Microsoft.Compute/disks",
 			"apiVersion": "2019-07-01",
 			"name": "[variables('netweaver_disk_sapmnt')]",
-			"location": "[parameters('location')]",
+			"location": "[variables('location')]",
 			"sku": {
 				"name": "Premium_LRS"
 			},
@@ -322,7 +244,7 @@
 			"type": "Microsoft.Compute/disks",
 			"apiVersion": "2019-07-01",
 			"name": "[variables('netweaver_disk_usrsap')]",
-			"location": "[parameters('location')]",
+			"location": "[variables('location')]",
 			"sku": {
 				"name": "Premium_LRS"
 			},
@@ -337,7 +259,7 @@
 			"type": "Microsoft.Compute/virtualMachines",
 			"apiVersion": "2019-03-01",
 			"name": "[parameters('netweaver_vm_name')]",
-			"location": "[parameters('location')]",
+			"location": "[variables('location')]",
 			"dependsOn": [
 				"[resourceId('Microsoft.Network/networkInterfaces/', variables('netweaver_nic_name'))]",
 				"[resourceId('Microsoft.Compute/disks/', variables('netweaver_disk_sapmnt'))]",
@@ -402,7 +324,7 @@
 		{
 			"name": "[concat(parameters('netweaver_vm_name'),'/CustomScriptForLinux')]",
 			"type": "Microsoft.Compute/virtualMachines/extensions",
-			"location": "[parameters('location')]",
+			"location": "[variables('location')]",
 			"apiVersion": "2019-03-01",
 			"dependsOn": [
 				"[concat('Microsoft.Compute/virtualMachines/', parameters('netweaver_vm_name'))]"
@@ -429,17 +351,14 @@
 			"type": "Microsoft.Network/networkInterfaces",
 			"apiVersion": "2019-09-01",
 			"name": "[variables('hana_nic_name')]",
-			"location": "[parameters('location')]",
-			"dependsOn": [
-				"[resourceId('Microsoft.Network/virtualNetworks/', parameters('virtual_network_name'))]"
-			],
+			"location": "[variables('location')]",
 			"properties": {
 				"ipConfigurations": [{
 					"name": "ipconfig1",
 					"properties": {
 						"privateIPAllocationMethod": "Dynamic",
 						"subnet": {
-							"id": "[variables('subnet_id')]"
+							"id": "$(LabSubnetId)"
 						},
 						"primary": true,
 						"privateIPAddressVersion": "IPv4"
@@ -453,7 +372,7 @@
 			"type": "Microsoft.Compute/disks",
 			"apiVersion": "2019-07-01",
 			"name": "[concat(parameters('hana_vm_name'), '-hanadata')]",
-			"location": "[parameters('location')]",
+			"location": "[variables('location')]",
 			"sku": {
 				"name": "Premium_LRS"
 			},
@@ -468,7 +387,7 @@
 			"type": "Microsoft.Compute/disks",
 			"apiVersion": "2019-07-01",
 			"name": "[concat(parameters('hana_vm_name'), '-hanalog')]",
-			"location": "[parameters('location')]",
+			"location": "[variables('location')]",
 			"sku": {
 				"name": "Premium_LRS"
 			},
@@ -483,7 +402,7 @@
 			"type": "Microsoft.Compute/disks",
 			"apiVersion": "2019-07-01",
 			"name": "[concat(parameters('hana_vm_name'), '-hanashared')]",
-			"location": "[parameters('location')]",
+			"location": "[variables('location')]",
 			"properties": {
 				"creationData": {
 					"createOption": "Empty"
@@ -495,7 +414,7 @@
 			"type": "Microsoft.Compute/disks",
 			"apiVersion": "2019-07-01",
 			"name": "[concat(parameters('hana_vm_name'), '-hanabackup')]",
-			"location": "[parameters('location')]",
+			"location": "[variables('location')]",
 			"properties": {
 				"creationData": {
 					"createOption": "Empty"
@@ -507,7 +426,7 @@
 			"type": "Microsoft.Compute/virtualMachines",
 			"apiVersion": "2019-03-01",
 			"name": "[parameters('hana_vm_name')]",
-			"location": "[parameters('location')]",
+			"location": "[variables('location')]",
 			"dependsOn": [
 				"[resourceId('Microsoft.Network/networkInterfaces/', variables('hana_nic_name'))]",
 				"[resourceId('Microsoft.Compute/disks/', concat(parameters('hana_vm_name'),'-hanadata'))]",
@@ -587,7 +506,7 @@
 		{
 			"name": "[concat(parameters('hana_vm_name'),'/CustomScriptForLinux')]",
 			"type": "Microsoft.Compute/virtualMachines/extensions",
-			"location": "[parameters('location')]",
+			"location": "[variables('location')]",
 			"apiVersion": "2019-03-01",
 			"dependsOn": [
 				"[concat('Microsoft.Compute/virtualMachines/', parameters('hana_vm_name'))]"
@@ -614,17 +533,14 @@
 			"type": "Microsoft.Network/networkInterfaces",
 			"apiVersion": "2019-07-01",
 			"name": "[variables('control_nic_name')]",
-			"location": "[parameters('location')]",
-			"dependsOn": [
-				"[resourceId('Microsoft.Network/virtualNetworks/', parameters('virtual_network_name'))]"
-			],
+			"location": "[variables('location')]",
 			"properties": {
 				"ipConfigurations": [{
 					"name": "ipconfig1",
 					"properties": {
 						"privateIPAllocationMethod": "Dynamic",
 						"subnet": {
-							"id": "[variables('subnet_id')]"
+							"id": "$(LabSubnetId)"
 						},
 						"primary": true,
 						"privateIPAddressVersion": "IPv4"
@@ -638,7 +554,7 @@
 			"name": "[parameters('control_vm_name')]",
 			"type": "Microsoft.Compute/virtualMachines",
 			"apiVersion": "2019-07-01",
-			"location": "[parameters('location')]",
+			"location": "[variables('location')]",
 			"dependsOn": [
 				"[concat('Microsoft.Compute/virtualMachines/', parameters('hana_vm_name'))]",
 				"[concat('Microsoft.Network/networkInterfaces/', variables('control_nic_name'))]"
