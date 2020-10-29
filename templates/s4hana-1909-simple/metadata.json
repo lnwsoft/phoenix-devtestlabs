@@ -1,0 +1,5 @@
+{
+  "itemDisplayName": "SAP S/4HANA 1909 using LNW-Soft Project Phoenix (simplified)",
+  "githubUsername": "LNW-Soft",
+  "description": "SAP S/4HANA 1909 deployment usind the LNW-Soft Project Phoenix automation engine. Uses default sizes and parameters for the system deployment."
+}
