@@ -2,64 +2,75 @@
 	"$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
 	"contentVersion": "1.0.0.0",
 	"parameters": {
-		"s4hana_sid": {
+		"S/4HANA SID": {
 			"defaultValue": "A01",
 			"type": "String",
 			"metadata": {
 				"description": "SID of the S/4HANA system"
 			}
 		},
-		"os_image": {
-			"defaultValue": "rhel-76",
+		"OS Image": {
+			"defaultValue": "Red Hat Enterprise Linux 7.6 for SAP",
 			"type": "String",
 			"metadata": {
 				"description": "Predefined OS Image (Azure Marketplace PAYG)"
 			},
 			"allowedValues": [
-				"rhel-74",
-				"rhel-76",
-				"sles-12-sp5",
-				"sles-15"
+				"Red Hat Enterprise Linux 7.4 for SAP",
+				"Red Hat Enterprise Linux 7.6 for SAP",
+				"SUSE Linux Enterprise Server 12 SP5 for SAP",
+				"SUSE Linux Enterprise Server 15 for SAP"
 			]
 		},
-		"os_user": {
+		"OS User": {
 			"defaultValue": "localadmin",
 			"type": "String",
 			"metadata": {
-				"description": "Username of the default OS user for the S/4HANA VM"
+				"description": "Username of the default OS user for the VMs"
 			}
 		},
 
-		"master_pw": {
+		"Master Password": {
 			"type": "securestring",
 			"metadata": {
 				"description": "Master password for the OS and database users"
 			}
 		},
-		"repo_storageacc_name": {
-			"type": "string"
+		"Repository Storage Account - Name": {
+			"type": "string",
+			"metadata": {
+				"description": "Name of the Azure Storage Account containing the repository with SAP installation sources"
+			}
 		},
-		"repo_storageacc_resource_group": {
-			"type": "string"
+		"Repository Storage Account - Resource Group": {
+			"type": "string",
+			"metadata": {
+				"description": "Resource Group of the Azure Storage Account containing the repository with SAP installation sources"
+			}
 		}
 		
 	},
 	"variables": {
 		"location": "[resourceGroup().location]",
 
-		"netweaver_sid": "[parameters('s4hana_sid')]",
+		"repo_storageacc_name": "[parameters('Repository Storage Account - Name')]",
+		"repo_storageacc_resource_group": "[parameters('Repository Storage Account - Resource Group')]",
+
+		"master_pw": "[parameters('Master Password')]",
+
+		"netweaver_sid": "[parameters('S/4HANA SID')]",
 		"netweaver_instance_no_pai": "01",
 		"netweaver_instance_no_scs": "00",
-		"netweaver_os_image": "[parameters('os_image')]",
-		"netweaver_os_user": "[parameters('os_user')]",
+		"netweaver_os_image": "[parameters('OS Image')]",
+		"netweaver_os_user": "[parameters('OS User')]",
 
 		"netweaver_vm_name": "s4hana",
 		"netweaver_vm_size": "Standard_D8ds_v4",
 
-		"hana_sid": "[parameters('s4hana_sid')]",
+		"hana_sid": "[parameters('S/4HANA SID')]",
 		"hana_instance_no": "00",
-		"hana_os_image": "[parameters('os_image')]",
-		"hana_os_user": "[parameters('os_user')]",
+		"hana_os_image": "[parameters('OS Image')]",
+		"hana_os_user": "[parameters('OS User')]",
 
 		"hana_vm_name": "database",
 		"hana_vm_size": "Standard_E20ds_v4",
@@ -78,7 +89,7 @@
 
 		"control_vm_size": "Standard_B2s",
 		"control_vm_username": "phoenixsupport",
-		"control_vm_password": "[concat(toUpper(uniqueString(resourceGroup().id,deployment().name)), uniqueString(deployment().name, resourceGroup().id, parameters('master_pw')))]",
+		"control_vm_password": "[concat(toUpper(uniqueString(resourceGroup().id,deployment().name)), uniqueString(deployment().name, resourceGroup().id, variables('master_pw')))]",
 		"control_nic_name": "[concat(variables('control_vm_name'),'-nic')]",
 		"control_osdisk_name": "[concat(variables('control_vm_name'), '-os')]",
 		"control_customdata_default": {
@@ -87,23 +98,23 @@
 			"webauth": "true"
 		},
 		"control_customdata_repository": {
-			"storage_account_name": "[parameters('repo_storageacc_name')]"
+			"storage_account_name": "[variables('repo_storageacc_name')]"
 		},
 		"control_customdata_hana": {
 			"hostagent_user": "sapadm",
-			"hostagent_password": "[parameters('master_pw')]",
+			"hostagent_password": "[variables('master_pw')]",
 			"sid": "[variables('hana_sid')]",
 			"instance_no": "[variables('hana_instance_no')]",
-			"master_password": "[parameters('master_pw')]",
+			"master_password": "[variables('master_pw')]",
 			"initial_load": ""
 		},
 		"control_customdata_netweaver": {
 			"hostagent_user": "sapadm",
-			"hostagent_password": "[parameters('master_pw')]",
+			"hostagent_password": "[variables('master_pw')]",
 			"sid": "[variables('netweaver_sid')]",
 			"instance_no_pai": "[variables('netweaver_instance_no_pai')]",
 			"instance_no_scs": "[variables('netweaver_instance_no_scs')]",
-			"master_password": "[parameters('master_pw')]",
+			"master_password": "[variables('master_pw')]",
 			"initial_load": ""
 		},
 		"sasFunctionValues": {
@@ -116,25 +127,25 @@
 			"keyToSign": "key1"
 		},
 		"os_images": {
-			"rhel-74": {
+			"Red Hat Enterprise Linux 7.4 for SAP": {
 				"publisher": "RedHat",
 				"offer": "RHEL-SAP",
 				"sku": "7.4",
 				"version": "latest"
 			},
-			"rhel-76": {
+			"Red Hat Enterprise Linux 7.6 for SAP": {
 				"publisher": "RedHat",
 				"offer": "RHEL-SAP",
 				"sku": "7.6",
 				"version": "7.6.2019071300"
 			},
-			"sles-12-sp5": {
+			"SUSE Linux Enterprise Server 12 SP5 for SAP": {
 				"publisher": "SUSE",
 				"offer": "sles-sap-12-sp5",
 				"sku": "gen1",
 				"version": "2020.06.10"
 			},
-			"sles-15": {
+			"SUSE Linux Enterprise Server 15 for SAP": {
 				"publisher": "SUSE",
 				"offer": "SLES-SAP",
 				"sku": "15",
@@ -257,7 +268,7 @@
 				"osProfile": {
 					"computerName": "[variables('netweaver_vm_name')]",
 					"adminUsername": "[variables('netweaver_os_user')]",
-					"adminPassword": "[parameters('master_pw')]",
+					"adminPassword": "[variables('master_pw')]",
 					"linuxConfiguration": {
 						"disablePasswordAuthentication": false,
 						"provisionVMAgent": true
@@ -287,14 +298,14 @@
 				"autoUpgradeMinorVersion": true,
 				"settings": {
 					"fileUris": [
-						"[concat('https://', parameters('repo_storageacc_name'), '.blob.core.windows.net/', 'hostagent/SAPCAR')]",
-						"[concat('https://', parameters('repo_storageacc_name'), '.blob.core.windows.net/', 'hostagent/SAPHOSTAGENT.SAR')]"
+						"[concat('https://', variables('repo_storageacc_name'), '.blob.core.windows.net/', 'hostagent/SAPCAR')]",
+						"[concat('https://', variables('repo_storageacc_name'), '.blob.core.windows.net/', 'hostagent/SAPHOSTAGENT.SAR')]"
 					]
 				},
 				"protectedSettings": {
-					"storageAccountName": "[parameters('repo_storageacc_name')]",
-					"storageAccountKey": "[listKeys(resourceId(parameters('repo_storageacc_resource_group'),'Microsoft.Storage/storageAccounts', parameters('repo_storageacc_name')), providers('Microsoft.Storage', 'storageAccounts').apiVersions[0]).keys[0].value]",
-					"commandToExecute": "[concat('$(which zypper yum 2>/dev/null) $(which zypper &>/dev/null && echo ''--no-gpg-checks'') install -y https://lnwrepop01.blob.core.windows.net/phoenix-node/lnw-phoenix-managed-node-0.1-1.el7.noarch.rpm && phoenix-node-setup -a ./SAPHOSTAGENT.SAR -c ./SAPCAR -p ''', parameters('master_pw'), '''')]"
+					"storageAccountName": "[variables('repo_storageacc_name')]",
+					"storageAccountKey": "[listKeys(resourceId(variables('repo_storageacc_resource_group'),'Microsoft.Storage/storageAccounts', variables('repo_storageacc_name')), providers('Microsoft.Storage', 'storageAccounts').apiVersions[0]).keys[0].value]",
+					"commandToExecute": "[concat('$(which zypper yum 2>/dev/null) $(which zypper &>/dev/null && echo ''--no-gpg-checks'') install -y https://lnwrepop01.blob.core.windows.net/phoenix-node/lnw-phoenix-managed-node-0.1-1.el7.noarch.rpm && phoenix-node-setup -a ./SAPHOSTAGENT.SAR -c ./SAPCAR -p ''', variables('master_pw'), '''')]"
 				}
 			}
 		},
@@ -439,7 +450,7 @@
 				"osProfile": {
 					"computerName": "[variables('hana_vm_name')]",
 					"adminUsername": "[variables('hana_os_user')]",
-					"adminPassword": "[parameters('master_pw')]",
+					"adminPassword": "[variables('master_pw')]",
 					"linuxConfiguration": {
 						"disablePasswordAuthentication": false,
 						"provisionVMAgent": true
@@ -469,14 +480,14 @@
 				"autoUpgradeMinorVersion": true,
 				"settings": {
 					"fileUris": [
-						"[concat('https://', parameters('repo_storageacc_name'), '.blob.core.windows.net/', 'hostagent/SAPCAR')]",
-						"[concat('https://', parameters('repo_storageacc_name'), '.blob.core.windows.net/', 'hostagent/SAPHOSTAGENT.SAR')]"
+						"[concat('https://', variables('repo_storageacc_name'), '.blob.core.windows.net/', 'hostagent/SAPCAR')]",
+						"[concat('https://', variables('repo_storageacc_name'), '.blob.core.windows.net/', 'hostagent/SAPHOSTAGENT.SAR')]"
 					]
 				},
 				"protectedSettings": {
-					"storageAccountName": "[parameters('repo_storageacc_name')]",
-					"storageAccountKey": "[listKeys(resourceId(parameters('repo_storageacc_resource_group'),'Microsoft.Storage/storageAccounts', parameters('repo_storageacc_name')), providers('Microsoft.Storage', 'storageAccounts').apiVersions[0]).keys[0].value]",
-					"commandToExecute": "[concat('$(which zypper yum 2>/dev/null) $(which zypper &>/dev/null && echo ''--no-gpg-checks'') install -y https://lnwrepop01.blob.core.windows.net/phoenix-node/lnw-phoenix-managed-node-0.1-1.el7.noarch.rpm && phoenix-node-setup -a ./SAPHOSTAGENT.SAR -c ./SAPCAR -p ''', parameters('master_pw'), '''')]"
+					"storageAccountName": "[variables('repo_storageacc_name')]",
+					"storageAccountKey": "[listKeys(resourceId(variables('repo_storageacc_resource_group'),'Microsoft.Storage/storageAccounts', variables('repo_storageacc_name')), providers('Microsoft.Storage', 'storageAccounts').apiVersions[0]).keys[0].value]",
+					"commandToExecute": "[concat('$(which zypper yum 2>/dev/null) $(which zypper &>/dev/null && echo ''--no-gpg-checks'') install -y https://lnwrepop01.blob.core.windows.net/phoenix-node/lnw-phoenix-managed-node-0.1-1.el7.noarch.rpm && phoenix-node-setup -a ./SAPHOSTAGENT.SAR -c ./SAPCAR -p ''', variables('master_pw'), '''')]"
 				}
 			}
 		},
@@ -544,7 +555,7 @@
 					"computerName": "[variables('control_vm_name')]",
 					"adminUsername": "[variables('control_vm_username')]",
 					"adminPassword": "[variables('control_vm_password')]",
-					"customData": "[base64(concat('{\"default\": ',string(variables('control_customdata_default')), ',\"repository\":', string(union(variables('control_customdata_repository'),json(concat('{\"storage_account_sas64\": \"',base64(listAccountSas(resourceId(parameters('repo_storageacc_resource_group'),'Microsoft.Storage/storageAccounts', parameters('repo_storageacc_name')),'2019-06-01',variables('sasFunctionValues')).accountSasToken),'\"}')))),', \"hana\":', string(union(json(concat('{\"host\":\"',reference(variables('hana_nic_name')).ipConfigurations[0].properties.privateIPAddress,'\"}')),variables('control_customdata_hana'))),', \"netweaver\":', string(union(json(concat('{\"host\":\"',reference(variables('netweaver_nic_name')).ipConfigurations[0].properties.privateIPAddress,'\"}')),variables('control_customdata_netweaver'))),'}'))]"
+					"customData": "[base64(concat('{\"default\": ',string(variables('control_customdata_default')), ',\"repository\":', string(union(variables('control_customdata_repository'),json(concat('{\"storage_account_sas64\": \"',base64(listAccountSas(resourceId(variables('repo_storageacc_resource_group'),'Microsoft.Storage/storageAccounts', variables('repo_storageacc_name')),'2019-06-01',variables('sasFunctionValues')).accountSasToken),'\"}')))),', \"hana\":', string(union(json(concat('{\"host\":\"',reference(variables('hana_nic_name')).ipConfigurations[0].properties.privateIPAddress,'\"}')),variables('control_customdata_hana'))),', \"netweaver\":', string(union(json(concat('{\"host\":\"',reference(variables('netweaver_nic_name')).ipConfigurations[0].properties.privateIPAddress,'\"}')),variables('control_customdata_netweaver'))),'}'))]"
 				}
 			}
 		}
