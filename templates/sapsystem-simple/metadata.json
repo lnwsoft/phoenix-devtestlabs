@@ -1,0 +1,5 @@
+{
+  "itemDisplayName": "SAP system using LNW-Soft Project Phoenix (simplified)",
+  "githubUsername": "LNW-Soft",
+  "description": "Complete SAP system deployment usind the LNW-Soft Project Phoenix automation engine. Currently supporting S/4HANA 1909 and NetWeaver 7.5 ABAP. Uses default sizes and parameters for the system deployment."
+}
