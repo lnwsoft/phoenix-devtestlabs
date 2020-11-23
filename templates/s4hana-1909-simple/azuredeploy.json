@@ -47,6 +47,10 @@
 			"metadata": {
 				"description": "Resource Group of the Azure Storage Account containing the repository with SAP installation sources"
 			}
+		},
+		"Lab Subnet Id":{
+			"type": "string",
+			"defaultValue": "$(LabSubnetId)"
 		}
 		
 	},
@@ -177,7 +181,7 @@
 					"properties": {
 						"privateIPAllocationMethod": "Dynamic",
 						"subnet": {
-							"id": "$(LabSubnetId)"
+							"id": "[parameters('Lab Subnet Id')]"
 						},
 						"primary": true,
 						"privateIPAddressVersion": "IPv4"
@@ -320,7 +324,7 @@
 					"properties": {
 						"privateIPAllocationMethod": "Dynamic",
 						"subnet": {
-							"id": "$(LabSubnetId)"
+							"id": "[parameters('Lab Subnet Id')]"
 						},
 						"primary": true,
 						"privateIPAddressVersion": "IPv4"
@@ -502,7 +506,7 @@
 					"properties": {
 						"privateIPAllocationMethod": "Dynamic",
 						"subnet": {
-							"id": "$(LabSubnetId)"
+							"id": "[parameters('Lab Subnet Id')]"
 						},
 						"primary": true,
 						"privateIPAddressVersion": "IPv4"
