@@ -44,7 +44,7 @@
 			]
 		},
 		"netweaver_vm_name": {
-			"defaultValue": "[concat('s4hana-', substring(guid(utcNow()),0,4))]",
+			"defaultValue": "[concat('s4hana-', substring(guid(resourceGroup().id),0,4))]",
 			"type": "String"
 		},
 		"netweaver_vm_size": {
@@ -87,7 +87,7 @@
 			]
 		},
 		"hana_vm_name": {
-			"defaultValue": "[concat('database-', substring(guid(utcNow()),0,4))]",
+			"defaultValue": "[concat('database-', substring(guid(resourceGroup().id),0,4))]",
 			"type": "String"
 		},
 		"hana_vm_size": {
@@ -108,7 +108,7 @@
 			"type": "string"
 		},
 		"control_vm_name": {
-			"defaultValue": "[concat('control-', substring(guid(utcNow()),0,4))]",
+			"defaultValue": "[concat('control-', substring(guid(resourceGroup().id),0,4))]",
 			"type": "string"
 		}
 	},
