@@ -64,7 +64,7 @@
 		"netweaver_os_image": "[parameters('OS Image')]",
 		"netweaver_os_user": "[parameters('OS User')]",
 
-		"netweaver_vm_name": "[concat('s4hana-', substring(uniqueString(resourceGroup().id),0,4))]",
+		"netweaver_vm_name": "[concat('s4hana-', substring(guid(resourceGroup().id),0,4))]",
 		"netweaver_vm_size": "Standard_D8ds_v4",
 
 		"hana_sid": "[parameters('S/4HANA SID')]",
@@ -72,10 +72,10 @@
 		"hana_os_image": "[parameters('OS Image')]",
 		"hana_os_user": "[parameters('OS User')]",
 
-		"hana_vm_name": "[concat('database-', substring(uniqueString(resourceGroup().id),0,4))]",
+		"hana_vm_name": "[concat('database-', substring(guid(resourceGroup().id),0,4))]",
 		"hana_vm_size": "Standard_E20ds_v4",
 
-		"control_vm_name": "[concat('control-', substring(uniqueString(resourceGroup().id),0,4))]",
+		"control_vm_name": "[concat('control-', substring(guid(resourceGroup().id),0,4))]",
 
 		"hana_nic_name": "[concat(variables('hana_vm_name'),'-nic')]",
 		"hana_osdisk_name": "[concat(variables('hana_vm_name'), '-os')]",
