@@ -10,13 +10,15 @@
 			}
 		},
 		"SAP Product": {
-			"defaultValue": "S/4 HANA 1909",
+			"defaultValue": "SAP S/4HANA 2020",
 			"type": "String",
 			"metadata": {
 				"description": "The SAP product to install"
 			},
 			"allowedValues": [
-				"SAP S/4 HANA 1909",
+				"SAP S/4HANA 2020",
+				"SAP BW/4HANA 2.0",
+				"SAP S/4HANA 1909",
 				"SAP NetWeaver 7.5 ABAP"
 			]
 		},
@@ -29,8 +31,12 @@
 			"allowedValues": [
 				"Red Hat Enterprise Linux 7.4 for SAP",
 				"Red Hat Enterprise Linux 7.6 for SAP",
+				"Red Hat Enterprise Linux 8.1 for SAP",
+				"Red Hat Enterprise Linux 8.2 for SAP",
 				"SUSE Linux Enterprise Server 12 SP5 for SAP",
-				"SUSE Linux Enterprise Server 15 for SAP"
+				"SUSE Linux Enterprise Server 15 for SAP",
+				"SUSE Linux Enterprise Server 15 SP1 for SAP",
+				"SUSE Linux Enterprise Server 15 SP2 for SAP"
 			]
 		},
 		"OS User": {
@@ -107,7 +113,9 @@
 		"control_osdisk_name": "[concat(variables('control_vm_name'), '-os')]",
 
 		"product_install_workflows": {
-			"SAP S/4 HANA 1909": "s4hana_1909_install",
+			"SAP S/4HANA 2020": "s4hana_2020_install",
+			"SAP BW/4HANA 2.0": "bw4hana_20_install",
+			"SAP S/4HANA 1909": "s4hana_1909_install",
 			"SAP NetWeaver 7.5 ABAP": "netweaver_install"
 		},
 
@@ -158,6 +166,18 @@
 				"sku": "7.6",
 				"version": "7.6.2019071300"
 			},
+			"Red Hat Enterprise Linux 8.1 for SAP": {
+				"publisher": "RedHat",
+				"offer": "RHEL-SAP-HA",
+				"sku": "8.1",
+				"version": "latest"
+			},
+			"Red Hat Enterprise Linux 8.2 for SAP": {
+				"publisher": "RedHat",
+				"offer": "RHEL-SAP-HA",
+				"sku": "8.2",
+				"version": "latest"
+			},
 			"SUSE Linux Enterprise Server 12 SP5 for SAP": {
 				"publisher": "SUSE",
 				"offer": "sles-sap-12-sp5",
@@ -168,6 +188,18 @@
 				"publisher": "SUSE",
 				"offer": "SLES-SAP",
 				"sku": "15",
+				"version": "latest"
+			},
+			"SUSE Linux Enterprise Server 15 SP1 for SAP": {
+				"publisher": "SUSE",
+				"offer": "sles-sap-15-sp1",
+				"sku": "gen1",
+				"version": "latest"
+			},
+			"SUSE Linux Enterprise Server 15 SP2 for SAP": {
+				"publisher": "SUSE",
+				"offer": "sles-sap-15-sp2",
+				"sku": "gen1",
 				"version": "latest"
 			}
 		}
@@ -562,7 +594,7 @@
 						"publisher": "lnw-softgmbh",
 						"offer": "phoenix-base",
 						"sku": "phoenix-base-01",
-						"version": "0.1.1"
+						"version": "latest"
 					}
 				},
 				"networkProfile": {
