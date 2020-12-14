@@ -55,22 +55,13 @@
 		"Lab Subnet Id": {
 			"type": "string",
 			"defaultValue": "$(LabSubnetId)"
-		},
-		"Repository Storage Account - SASToken": {
-			"type": "string",
-			"metadata": {
-				"description": "SASToken of the Azure Storage Account containing the repository with SAP installation sources"
-			}
 		}
-
 	},
 	"variables": {
 		"location": "[resourceGroup().location]",
 
 		"repo_storageacc_name": "[parameters('Repository Storage Account - Name')]",
 		"repo_storageacc_resource_id": "[parameters('Repository Storage Account - Resource Id')]",
-		// "repo_storageacc_sas_token": "[parameters('Repository Storage Account - SASToken')]",
-		"repo_storageacc_sas_token": "",
 		"master_pw": "[parameters('Master Password')]",
 
 		"netweaver_sid": "[parameters('S/4HANA SID')]",
@@ -614,7 +605,7 @@
 					"computerName": "[variables('control_vm_name')]",
 					"adminUsername": "[variables('control_vm_username')]",
 					"adminPassword": "[variables('master_pw')]",
-					"customData": "[base64(concat('{\"default\": ',string(variables('control_customdata_default')), ',\"repository\":', string(union(variables('control_customdata_repository'),json(concat('{\"storage_account_sas64\": \"',base64(variables('repo_storageacc_sas_token')),'\"}')))),', \"hana\":', string(union(json(concat('{\"host\":\"',reference(variables('hana_nic_name')).ipConfigurations[0].properties.privateIPAddress,'\"}')),variables('control_customdata_hana'))),', \"netweaver\":', string(union(json(concat('{\"host\":\"',reference(variables('netweaver_nic_name')).ipConfigurations[0].properties.privateIPAddress,'\"}')),variables('control_customdata_netweaver'))),'}'))]"
+					"customData": "[base64(concat('{\"default\": ',string(variables('control_customdata_default')), ',\"repository\":', string(union(variables('control_customdata_repository'),json('{\"storage_account_sas64\": \"''\"}'))),', \"hana\":', string(union(json(concat('{\"host\":\"',reference(variables('hana_nic_name')).ipConfigurations[0].properties.privateIPAddress,'\"}')),variables('control_customdata_hana'))),', \"netweaver\":', string(union(json(concat('{\"host\":\"',reference(variables('netweaver_nic_name')).ipConfigurations[0].properties.privateIPAddress,'\"}')),variables('control_customdata_netweaver'))),'}'))]"
 				}
 			}
 		}
