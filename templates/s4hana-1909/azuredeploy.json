@@ -82,8 +82,12 @@
 			"allowedValues": [
 				"rhel-74",
 				"rhel-76",
+				"rhel-81",
+				"rhel-82",
 				"sles-12-sp5",
-				"sles-15"
+				"sles-15",
+				"sles-15-sp1",
+				"sles-15-sp2"
 			]
 		},
 		"hana_vm_name": {
@@ -177,6 +181,18 @@
 				"sku": "7.6",
 				"version": "7.6.2019071300"
 			},
+			"rhel-81": {
+				"publisher": "RedHat",
+				"offer": "RHEL-SAP-HA",
+				"sku": "8.1",
+				"version": "latest"
+			},
+			"rhel-82": {
+				"publisher": "RedHat",
+				"offer": "RHEL-SAP-HA",
+				"sku": "8.2",
+				"version": "latest"
+			},
 			"sles-12-sp5": {
 				"publisher": "SUSE",
 				"offer": "sles-sap-12-sp5",
@@ -187,6 +203,18 @@
 				"publisher": "SUSE",
 				"offer": "SLES-SAP",
 				"sku": "15",
+				"version": "latest"
+			},
+			"sles-15-sp1": {
+				"publisher": "SUSE",
+				"offer": "sles-sap-15-sp1",
+				"sku": "gen1",
+				"version": "latest"
+			},
+			"sles-15-sp2": {
+				"publisher": "SUSE",
+				"offer": "sles-sap-15-sp2",
+				"sku": "gen1",
 				"version": "latest"
 			}
 		}
@@ -581,7 +609,7 @@
 						"publisher": "lnw-softgmbh",
 						"offer": "phoenix-base",
 						"sku": "phoenix-base-01",
-						"version": "0.1.1"
+						"version": "latest"
 					}
 				},
 				"networkProfile": {
