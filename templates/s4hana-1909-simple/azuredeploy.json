@@ -46,23 +46,23 @@
 				"description": "Name of the Azure Storage Account containing the repository with SAP installation sources"
 			}
 		},
-		"Repository Storage Account - Resource Group": {
+		"Repository Storage Account - Resource Id": {
 			"type": "string",
 			"metadata": {
-				"description": "Resource Group of the Azure Storage Account containing the repository with SAP installation sources"
+				"description": "Resource Id of the Azure Storage Account containing the repository with SAP installation sources"
 			}
 		},
-		"Lab Subnet Id":{
+		"Lab Subnet Id": {
 			"type": "string",
 			"defaultValue": "$(LabSubnetId)"
 		}
-		
+
 	},
 	"variables": {
 		"location": "[resourceGroup().location]",
 
 		"repo_storageacc_name": "[parameters('Repository Storage Account - Name')]",
-		"repo_storageacc_resource_group": "[parameters('Repository Storage Account - Resource Group')]",
+		"repo_storageacc_resource_id": "[parameters('Repository Storage Account - Resource Id')]",
 
 		"master_pw": "[parameters('Master Password')]",
 
@@ -185,7 +185,8 @@
 			}
 		}
 	},
-	"resources": [{
+	"resources": [
+		{
 			"apiVersion": "2018-02-01",
 			"name": "pid-4d714694-a1f4-48ab-8963-7b21fd2ee75d",
 			"type": "Microsoft.Resources/deployments",
@@ -204,17 +205,19 @@
 			"name": "[variables('netweaver_nic_name')]",
 			"location": "[variables('location')]",
 			"properties": {
-				"ipConfigurations": [{
-					"name": "ipconfig1",
-					"properties": {
-						"privateIPAllocationMethod": "Dynamic",
-						"subnet": {
-							"id": "[parameters('Lab Subnet Id')]"
-						},
-						"primary": true,
-						"privateIPAddressVersion": "IPv4"
+				"ipConfigurations": [
+					{
+						"name": "ipconfig1",
+						"properties": {
+							"privateIPAllocationMethod": "Dynamic",
+							"subnet": {
+								"id": "[parameters('Lab Subnet Id')]"
+							},
+							"primary": true,
+							"privateIPAddressVersion": "IPv4"
+						}
 					}
-				}],
+				],
 				"enableAcceleratedNetworking": false,
 				"enableIPForwarding": false
 			}
@@ -280,22 +283,24 @@
 						},
 						"diskSizeGB": 64
 					},
-					"dataDisks": [{
-						"lun": 0,
-						"name": "[variables('netweaver_disk_sapmnt')]",
-						"createOption": "attach",
-						"managedDisk": {
-							"id": "[resourceId('Microsoft.Compute/disks/', variables('netweaver_disk_sapmnt'))]"
+					"dataDisks": [
+						{
+							"lun": 0,
+							"name": "[variables('netweaver_disk_sapmnt')]",
+							"createOption": "attach",
+							"managedDisk": {
+								"id": "[resourceId('Microsoft.Compute/disks/', variables('netweaver_disk_sapmnt'))]"
+							}
+						},
+						{
+							"lun": 1,
+							"name": "[variables('netweaver_disk_usrsap')]",
+							"createOption": "attach",
+							"managedDisk": {
+								"id": "[resourceId('Microsoft.Compute/disks/', variables('netweaver_disk_usrsap'))]"
+							}
 						}
-					},
-					{
-						"lun": 1,
-						"name": "[variables('netweaver_disk_usrsap')]",
-						"createOption": "attach",
-						"managedDisk": {
-							"id": "[resourceId('Microsoft.Compute/disks/', variables('netweaver_disk_usrsap'))]"
-						}
-					}]
+					]
 				},
 				"osProfile": {
 					"computerName": "[variables('netweaver_vm_name')]",
@@ -309,9 +314,11 @@
 					"allowExtensionOperations": true
 				},
 				"networkProfile": {
-					"networkInterfaces": [{
-						"id": "[resourceId('Microsoft.Network/networkInterfaces', variables('netweaver_nic_name'))]"
-					}]
+					"networkInterfaces": [
+						{
+							"id": "[resourceId('Microsoft.Network/networkInterfaces', variables('netweaver_nic_name'))]"
+						}
+					]
 				}
 			}
 		},
@@ -336,7 +343,7 @@
 				},
 				"protectedSettings": {
 					"storageAccountName": "[variables('repo_storageacc_name')]",
-					"storageAccountKey": "[listKeys(resourceId(variables('repo_storageacc_resource_group'),'Microsoft.Storage/storageAccounts', variables('repo_storageacc_name')), providers('Microsoft.Storage', 'storageAccounts').apiVersions[0]).keys[0].value]",
+					"storageAccountKey": "[listKeys(variables('repo_storageacc_resource_id'), providers('Microsoft.Storage', 'storageAccounts').apiVersions[0]).keys[0].value]",
 					"commandToExecute": "[concat('$(which zypper yum 2>/dev/null) $(which zypper &>/dev/null && echo ''--no-gpg-checks'') install -y https://lnwrepop01.blob.core.windows.net/phoenix-node/lnw-phoenix-managed-node-0.1-1.el7.noarch.rpm && phoenix-node-setup -a ./SAPHOSTAGENT.SAR -c ./SAPCAR -p ''', variables('master_pw'), '''')]"
 				}
 			}
@@ -347,17 +354,19 @@
 			"name": "[variables('hana_nic_name')]",
 			"location": "[variables('location')]",
 			"properties": {
-				"ipConfigurations": [{
-					"name": "ipconfig1",
-					"properties": {
-						"privateIPAllocationMethod": "Dynamic",
-						"subnet": {
-							"id": "[parameters('Lab Subnet Id')]"
-						},
-						"primary": true,
-						"privateIPAddressVersion": "IPv4"
+				"ipConfigurations": [
+					{
+						"name": "ipconfig1",
+						"properties": {
+							"privateIPAllocationMethod": "Dynamic",
+							"subnet": {
+								"id": "[parameters('Lab Subnet Id')]"
+							},
+							"primary": true,
+							"privateIPAddressVersion": "IPv4"
+						}
 					}
-				}],
+				],
 				"enableAcceleratedNetworking": false,
 				"enableIPForwarding": false
 			}
@@ -449,35 +458,40 @@
 						},
 						"diskSizeGB": 64
 					},
-					"dataDisks": [{
-						"lun": 0,
-						"name": "[concat(variables('hana_vm_name'),'-hanadata')]",
-						"createOption": "attach",
-						"managedDisk": {
-							"id": "[resourceId('Microsoft.Compute/disks/', concat(variables('hana_vm_name'),'-hanadata'))]"
+					"dataDisks": [
+						{
+							"lun": 0,
+							"name": "[concat(variables('hana_vm_name'),'-hanadata')]",
+							"createOption": "attach",
+							"managedDisk": {
+								"id": "[resourceId('Microsoft.Compute/disks/', concat(variables('hana_vm_name'),'-hanadata'))]"
+							}
+						},
+						{
+							"lun": 1,
+							"name": "[concat(variables('hana_vm_name'),'-hanalog')]",
+							"createOption": "attach",
+							"managedDisk": {
+								"id": "[resourceId('Microsoft.Compute/disks/', concat(variables('hana_vm_name'),'-hanalog'))]"
+							}
+						},
+						{
+							"lun": 2,
+							"name": "[concat(variables('hana_vm_name'),'-hanashared')]",
+							"createOption": "attach",
+							"managedDisk": {
+								"id": "[resourceId('Microsoft.Compute/disks/', concat(variables('hana_vm_name'),'-hanashared'))]"
+							}
+						},
+						{
+							"lun": 3,
+							"name": "[concat(variables('hana_vm_name'),'-hanabackup')]",
+							"createOption": "attach",
+							"managedDisk": {
+								"id": "[resourceId('Microsoft.Compute/disks/', concat(variables('hana_vm_name'),'-hanabackup'))]"
+							}
 						}
-					}, {
-						"lun": 1,
-						"name": "[concat(variables('hana_vm_name'),'-hanalog')]",
-						"createOption": "attach",
-						"managedDisk": {
-							"id": "[resourceId('Microsoft.Compute/disks/', concat(variables('hana_vm_name'),'-hanalog'))]"
-						}
-					}, {
-						"lun": 2,
-						"name": "[concat(variables('hana_vm_name'),'-hanashared')]",
-						"createOption": "attach",
-						"managedDisk": {
-							"id": "[resourceId('Microsoft.Compute/disks/', concat(variables('hana_vm_name'),'-hanashared'))]"
-						}
-					}, {
-						"lun": 3,
-						"name": "[concat(variables('hana_vm_name'),'-hanabackup')]",
-						"createOption": "attach",
-						"managedDisk": {
-							"id": "[resourceId('Microsoft.Compute/disks/', concat(variables('hana_vm_name'),'-hanabackup'))]"
-						}
-					}]
+					]
 				},
 				"osProfile": {
 					"computerName": "[variables('hana_vm_name')]",
@@ -491,9 +505,11 @@
 					"allowExtensionOperations": true
 				},
 				"networkProfile": {
-					"networkInterfaces": [{
-						"id": "[resourceId('Microsoft.Network/networkInterfaces', variables('hana_nic_name'))]"
-					}]
+					"networkInterfaces": [
+						{
+							"id": "[resourceId('Microsoft.Network/networkInterfaces', variables('hana_nic_name'))]"
+						}
+					]
 				}
 			}
 		},
@@ -518,7 +534,7 @@
 				},
 				"protectedSettings": {
 					"storageAccountName": "[variables('repo_storageacc_name')]",
-					"storageAccountKey": "[listKeys(resourceId(variables('repo_storageacc_resource_group'),'Microsoft.Storage/storageAccounts', variables('repo_storageacc_name')), providers('Microsoft.Storage', 'storageAccounts').apiVersions[0]).keys[0].value]",
+					"storageAccountKey": "[listKeys(variables('repo_storageacc_resource_id'), providers('Microsoft.Storage', 'storageAccounts').apiVersions[0]).keys[0].value]",
 					"commandToExecute": "[concat('$(which zypper yum 2>/dev/null) $(which zypper &>/dev/null && echo ''--no-gpg-checks'') install -y https://lnwrepop01.blob.core.windows.net/phoenix-node/lnw-phoenix-managed-node-0.1-1.el7.noarch.rpm && phoenix-node-setup -a ./SAPHOSTAGENT.SAR -c ./SAPCAR -p ''', variables('master_pw'), '''')]"
 				}
 			}
@@ -529,17 +545,19 @@
 			"name": "[variables('control_nic_name')]",
 			"location": "[variables('location')]",
 			"properties": {
-				"ipConfigurations": [{
-					"name": "ipconfig1",
-					"properties": {
-						"privateIPAllocationMethod": "Dynamic",
-						"subnet": {
-							"id": "[parameters('Lab Subnet Id')]"
-						},
-						"primary": true,
-						"privateIPAddressVersion": "IPv4"
+				"ipConfigurations": [
+					{
+						"name": "ipconfig1",
+						"properties": {
+							"privateIPAllocationMethod": "Dynamic",
+							"subnet": {
+								"id": "[parameters('Lab Subnet Id')]"
+							},
+							"primary": true,
+							"privateIPAddressVersion": "IPv4"
+						}
 					}
-				}],
+				],
 				"enableAcceleratedNetworking": false,
 				"enableIPForwarding": false
 			}
@@ -579,15 +597,17 @@
 					}
 				},
 				"networkProfile": {
-					"networkInterfaces": [{
-						"id": "[resourceId('Microsoft.Network/networkInterfaces', variables('control_nic_name'))]"
-					}]
+					"networkInterfaces": [
+						{
+							"id": "[resourceId('Microsoft.Network/networkInterfaces', variables('control_nic_name'))]"
+						}
+					]
 				},
 				"osProfile": {
 					"computerName": "[variables('control_vm_name')]",
 					"adminUsername": "[variables('control_vm_username')]",
 					"adminPassword": "[variables('master_pw')]",
-					"customData": "[base64(concat('{\"default\": ',string(variables('control_customdata_default')), ',\"repository\":', string(union(variables('control_customdata_repository'),json(concat('{\"storage_account_sas64\": \"',base64(listAccountSas(resourceId(variables('repo_storageacc_resource_group'),'Microsoft.Storage/storageAccounts', variables('repo_storageacc_name')),'2019-06-01',variables('sasFunctionValues')).accountSasToken),'\"}')))),', \"hana\":', string(union(json(concat('{\"host\":\"',reference(variables('hana_nic_name')).ipConfigurations[0].properties.privateIPAddress,'\"}')),variables('control_customdata_hana'))),', \"netweaver\":', string(union(json(concat('{\"host\":\"',reference(variables('netweaver_nic_name')).ipConfigurations[0].properties.privateIPAddress,'\"}')),variables('control_customdata_netweaver'))),'}'))]"
+					"customData": "[base64(concat('{\"default\": ',string(variables('control_customdata_default')), ',\"repository\":', string(union(variables('control_customdata_repository'),json(concat('{\"storage_account_sas64\": \"',base64(listAccountSas(variables('repo_storageacc_resource_id'),'2019-06-01',variables('sasFunctionValues')).accountSasToken),'\"}')))),', \"hana\":', string(union(json(concat('{\"host\":\"',reference(variables('hana_nic_name')).ipConfigurations[0].properties.privateIPAddress,'\"}')),variables('control_customdata_hana'))),', \"netweaver\":', string(union(json(concat('{\"host\":\"',reference(variables('netweaver_nic_name')).ipConfigurations[0].properties.privateIPAddress,'\"}')),variables('control_customdata_netweaver'))),'}'))]"
 				}
 			}
 		}
