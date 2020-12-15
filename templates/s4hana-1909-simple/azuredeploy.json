@@ -617,6 +617,10 @@
 		"webui": {
 			"type": "string",
 			"value": "[concat('http://',reference(variables('control_nic_name')).ipConfigurations[0].properties.privateIPAddress,':8000/')]"
+		},
+		"msi": {
+			"type": "string",
+			"value": "[concat('{\"objectId\": \"', reference(resourceId(variables('dtlName'), 'Microsoft.DevTestLab/labs', variables('dtlName')), '2018-10-15-preview', 'Full').identity.principalId,'\"}')]"
 		}
 	}
 }
