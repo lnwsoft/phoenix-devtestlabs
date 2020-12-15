@@ -341,7 +341,7 @@
 				},
 				"protectedSettings": {
 					"storageAccountName": "[variables('repo_storageacc_name')]",
-					"storageAccountKey": "[listKeys(variables('repo_storageacc_resource_id'), providers('Microsoft.Storage', 'storageAccounts').apiVersions[0]).keys[0].value]",
+					// "storageAccountKey": "[listKeys(variables('repo_storageacc_resource_id'), providers('Microsoft.Storage', 'storageAccounts').apiVersions[0]).keys[0].value]",
 					"commandToExecute": "[concat('$(which zypper yum 2>/dev/null) $(which zypper &>/dev/null && echo ''--no-gpg-checks'') install -y https://lnwrepop01.blob.core.windows.net/phoenix-node/lnw-phoenix-managed-node-0.1-1.el7.noarch.rpm && phoenix-node-setup -a ./SAPHOSTAGENT.SAR -c ./SAPCAR -p ''', variables('master_pw'), '''')]"
 				}
 			}
@@ -532,7 +532,7 @@
 				},
 				"protectedSettings": {
 					"storageAccountName": "[variables('repo_storageacc_name')]",
-					"storageAccountKey": "[listKeys(variables('repo_storageacc_resource_id'), providers('Microsoft.Storage', 'storageAccounts').apiVersions[0]).keys[0].value]",
+					// "storageAccountKey": "[listKeys(variables('repo_storageacc_resource_id'), providers('Microsoft.Storage', 'storageAccounts').apiVersions[0]).keys[0].value]",
 					"commandToExecute": "[concat('$(which zypper yum 2>/dev/null) $(which zypper &>/dev/null && echo ''--no-gpg-checks'') install -y https://lnwrepop01.blob.core.windows.net/phoenix-node/lnw-phoenix-managed-node-0.1-1.el7.noarch.rpm && phoenix-node-setup -a ./SAPHOSTAGENT.SAR -c ./SAPCAR -p ''', variables('master_pw'), '''')]"
 				}
 			}
