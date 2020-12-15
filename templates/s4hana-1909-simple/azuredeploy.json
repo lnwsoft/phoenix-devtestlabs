@@ -55,14 +55,22 @@
 		"Lab Subnet Id": {
 			"type": "string",
 			"defaultValue": "$(LabSubnetId)"
+		},
+		"Repository Storage Account - SASToken": {
+			"type": "string",
+			"metadata": {
+				"description": "SASToken of the Azure Storage Account containing the repository with SAP installation sources"
+			}
 		}
+
 	},
 	"variables": {
-		"dtlName": "[split(parameters('Lab Subnet Id'), '/')[4]]",
 		"location": "[resourceGroup().location]",
 
 		"repo_storageacc_name": "[parameters('Repository Storage Account - Name')]",
 		"repo_storageacc_resource_id": "[parameters('Repository Storage Account - Resource Id')]",
+		// "repo_storageacc_sas_token": "[parameters('Repository Storage Account - SASToken')]",
+		"repo_storageacc_sas_token": "",
 		"master_pw": "[parameters('Master Password')]",
 
 		"netweaver_sid": "[parameters('S/4HANA SID')]",
@@ -341,9 +349,8 @@
 					]
 				},
 				"protectedSettings": {
-					"managedIdentity": "[concat('{\"objectId\": \"', reference(resourceId(variables('dtlName'), 'Microsoft.DevTestLab/labs', variables('dtlName')), '2018-10-15-preview', 'Full').identity.principalId,'\"}')]",
-					// "storageAccountName": "[variables('repo_storageacc_name')]",
-					// "storageAccountKey": "[listKeys(variables('repo_storageacc_resource_id'), providers('Microsoft.Storage', 'storageAccounts').apiVersions[0]).keys[0].value]",
+					"storageAccountName": "[variables('repo_storageacc_name')]",
+					"storageAccountKey": "[listKeys(variables('repo_storageacc_resource_id'), providers('Microsoft.Storage', 'storageAccounts').apiVersions[0]).keys[0].value]",
 					"commandToExecute": "[concat('$(which zypper yum 2>/dev/null) $(which zypper &>/dev/null && echo ''--no-gpg-checks'') install -y https://lnwrepop01.blob.core.windows.net/phoenix-node/lnw-phoenix-managed-node-0.1-1.el7.noarch.rpm && phoenix-node-setup -a ./SAPHOSTAGENT.SAR -c ./SAPCAR -p ''', variables('master_pw'), '''')]"
 				}
 			}
@@ -533,9 +540,8 @@
 					]
 				},
 				"protectedSettings": {
-					//"storageAccountName": "[variables('repo_storageacc_name')]",
-					"managedIdentity": "[concat('{\"objectId\": \"', reference(resourceId(variables('dtlName'), 'Microsoft.DevTestLab/labs', variables('dtlName')), '2018-10-15-preview', 'Full').identity.principalId,'\"}')]",
-					// "storageAccountKey": "[listKeys(variables('repo_storageacc_resource_id'), providers('Microsoft.Storage', 'storageAccounts').apiVersions[0]).keys[0].value]",
+					"storageAccountName": "[variables('repo_storageacc_name')]",
+					"storageAccountKey": "[listKeys(variables('repo_storageacc_resource_id'), providers('Microsoft.Storage', 'storageAccounts').apiVersions[0]).keys[0].value]",
 					"commandToExecute": "[concat('$(which zypper yum 2>/dev/null) $(which zypper &>/dev/null && echo ''--no-gpg-checks'') install -y https://lnwrepop01.blob.core.windows.net/phoenix-node/lnw-phoenix-managed-node-0.1-1.el7.noarch.rpm && phoenix-node-setup -a ./SAPHOSTAGENT.SAR -c ./SAPCAR -p ''', variables('master_pw'), '''')]"
 				}
 			}
@@ -608,7 +614,7 @@
 					"computerName": "[variables('control_vm_name')]",
 					"adminUsername": "[variables('control_vm_username')]",
 					"adminPassword": "[variables('master_pw')]",
-					"customData": "[base64(concat('{\"default\": ',string(variables('control_customdata_default')), ',\"repository\":', string(union(variables('control_customdata_repository'),json('{\"storage_account_sas64\": \"''\"}'))),', \"hana\":', string(union(json(concat('{\"host\":\"',reference(variables('hana_nic_name')).ipConfigurations[0].properties.privateIPAddress,'\"}')),variables('control_customdata_hana'))),', \"netweaver\":', string(union(json(concat('{\"host\":\"',reference(variables('netweaver_nic_name')).ipConfigurations[0].properties.privateIPAddress,'\"}')),variables('control_customdata_netweaver'))),'}'))]"
+					"customData": "[base64(concat('{\"default\": ',string(variables('control_customdata_default')), ',\"repository\":', string(union(variables('control_customdata_repository'),json(concat('{\"storage_account_sas64\": \"',base64(variables('repo_storageacc_sas_token')),'\"}')))),', \"hana\":', string(union(json(concat('{\"host\":\"',reference(variables('hana_nic_name')).ipConfigurations[0].properties.privateIPAddress,'\"}')),variables('control_customdata_hana'))),', \"netweaver\":', string(union(json(concat('{\"host\":\"',reference(variables('netweaver_nic_name')).ipConfigurations[0].properties.privateIPAddress,'\"}')),variables('control_customdata_netweaver'))),'}'))]"
 				}
 			}
 		}
@@ -617,10 +623,6 @@
 		"webui": {
 			"type": "string",
 			"value": "[concat('http://',reference(variables('control_nic_name')).ipConfigurations[0].properties.privateIPAddress,':8000/')]"
-		},
-		"msi": {
-			"type": "string",
-			"value": "[concat('{\"objectId\": \"', reference(resourceId(variables('dtlName'), 'Microsoft.DevTestLab/labs', variables('dtlName')), '2018-10-15-preview', 'Full').identity.principalId,'\"}')]"
 		}
 	}
 }
