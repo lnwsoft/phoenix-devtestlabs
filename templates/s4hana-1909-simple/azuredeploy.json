@@ -69,8 +69,8 @@
 
 		"repo_storageacc_name": "[parameters('Repository Storage Account - Name')]",
 		"repo_storageacc_resource_id": "[parameters('Repository Storage Account - Resource Id')]",
-		// "repo_storageacc_sas_token": "[parameters('Repository Storage Account - SASToken')]",
-		"repo_storageacc_sas_token": "",
+		"repo_storageacc_sas_token": "[parameters('Repository Storage Account - SASToken')]",
+		//"repo_storageacc_sas_token": "",
 		"master_pw": "[parameters('Master Password')]",
 
 		"netweaver_sid": "[parameters('S/4HANA SID')]",
